@@ -66,9 +66,6 @@ try:
 
     os._exit(0)
 
-    # Make a TimeZone variable for the timezone the data is in
-    tz = pytz.timezone(config['time_zone'])
-
     # Make a dictionary mapping meter numbers to BMON server ID.  This comes from a
     # SQLite database identified in config file.
     db_fn = config['meter_number_db']
