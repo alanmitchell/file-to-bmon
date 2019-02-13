@@ -4,6 +4,7 @@
 
 import glob
 import logging
+from pathlib import Path
 import os
 import csv
 import sys
@@ -22,13 +23,16 @@ config_fn = sys.argv[1]
 
 # get path to folder where config file is.  This folder
 # is used to store logs and other files.
-config_folder = os.path.dirname(config_fn)
+config_folder = Path(config_fn).parent
+
+# Make sure there are log and posters directories underneath config file
+(config_folder / 'log').mkdir(exist_ok=True)
+(config_folder / 'posters').mkdir(exist_ok=True)
 
 # ----- Setup Exception/Debug Logging for the Application
 
 # Log file for the application.
-log_file = os.path.join(config_folder, 'logs', 'process_meters.log')
-
+log_file = config_folder / 'log' / 'process_files.log'
 logging_setup.configure_logging(log_file)
 
 # -------------------
@@ -47,16 +51,20 @@ try:
     # to all handlers (unless maybe you set a specific level on a handler?).
     # defaults to INFO if a bad entry in the config file.
     logging.root.setLevel(getattr(logging, config['logging_level'].upper(), 20))
+    logging.info('Started file processing.')
 
     # start BMON posters and put in a dictionary
     posters = {}
+    poster_folder = config_folder / 'posters'
     for id, bmon_info in config['bmon_servers'].items():
         posters[id] = HttpPoster(bmon_info['url'],
                                  reading_converter=BMSreadConverter(bmon_info['store_key']),
-                                 post_q_filename=os.path.join(config_folder, 'run', '%s_postQ.sqlite' % id),
+                                 post_q_filename=poster_folder / ('%s_postQ.sqlite' % id),
                                  post_thread_count=1,
-                                 post_time_file=os.path.join(config_folder, 'run', '%s_last_post_time' % id)
+                                 post_time_file=poster_folder / ('%s_last_post_time' % id)
                                 )
+
+    os._exit(0)
 
     # Make a TimeZone variable for the timezone the data is in
     tz = pytz.timezone(config['time_zone'])

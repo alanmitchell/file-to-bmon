@@ -143,7 +143,7 @@ class SqliteReliableQueue(object):
 
     def __len__(self):
         with self._get_conn() as conn:
-            l = conn.execute(self._count).next()[0]
+            l = conn.execute(self._count).fetchone()[0]
         return l
 
     def __iter__(self):
@@ -173,7 +173,7 @@ class SqliteReliableQueue(object):
     def append(self, obj):
         """Adds an item to the queue.
         """
-        obj_buffer = buffer(dumps(obj, 2))
+        obj_buffer = sqlite3.Binary(dumps(obj))
         with self._get_conn() as conn:
             conn.execute(self._append, (obj_buffer,))
             # the 'with' statement commits the insert.
@@ -190,9 +190,9 @@ class SqliteReliableQueue(object):
                 conn.execute(self._write_lock)
                 cursor = conn.execute(self._popleft_get)
                 try:
-                    id, obj_buffer = cursor.next()
+                    id, obj_buffer = cursor.fetchone()
                     keep_pooling = False
-                except StopIteration:
+                except TypeError:
                     conn.commit() # unlock the database
                     if not sleep_wait:
                         keep_pooling = False
@@ -212,10 +212,10 @@ class SqliteReliableQueue(object):
         with self._get_conn() as conn:
             cursor = conn.execute(self._peek)
             try:
-                return loads(str(cursor.next()[0]))
-            except StopIteration:
+                return loads(str(cursor.fetchone()[0]))
+            except TypeError:
                 return None
-                
+
     def finished(self, id):
         """Call when finished processing an item.  This will delete the item
         from the 'processing' list.  'id' is the id # of the item.
@@ -234,5 +234,5 @@ class SqliteReliableQueue(object):
         """Returns the number of items in the processing list.
         """
         with self._get_conn() as conn:
-            l = conn.execute(self._processing_count).next()[0]
+            l = conn.execute(self._processing_count).fetchone()[0]
         return l
