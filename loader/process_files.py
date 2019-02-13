@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.7
-"""Script to add sensor reading data from files into the BMON
-systems.
+"""Script to add sensor reading data from files into BMON systems.
 """
 
 import glob
