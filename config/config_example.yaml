@@ -5,12 +5,12 @@ file_sources:
     reader: cea
     chunk_size: 50
     default_bmon: ahfc
-    timezone: US/Alaska
+    time_zone: US/Alaska
     file_retention: 3
   - pattern: /home/alan/mea/*.xlsx
     reader: mea
     default_bmon: mssd
-    timezone: US/Alaska
+    time_zone: US/Alaska
     file_retention: 5
 bmon_servers:
   ahfc:
