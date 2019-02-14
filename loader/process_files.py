@@ -16,7 +16,7 @@ import yaml
 import pytz
 
 import logging_setup
-from poster.httpPoster2 import HttpPoster, BMSreadConverter
+from poster.httpPoster import HttpPoster, BMSreadConverter
 
 # configuration file name, 1st command line argument
 config_fn = sys.argv[1]
