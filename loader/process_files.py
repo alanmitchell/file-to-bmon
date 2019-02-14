@@ -66,72 +66,43 @@ try:
 
     os._exit(0)
 
-    # Make a dictionary mapping meter numbers to BMON server ID.  This comes from a
-    # SQLite database identified in config file.
-    db_fn = config['meter_number_db']
-    conn = sqlite3.connect(db_fn)
-    with conn:
-        cur = conn.cursor()
-        cur.execute('SELECT meter_number, bmon_id from meters')
-        rows = cur.fetchall()
-        meter_to_bmon = dict(rows)
+    # Make a dictionary mapping sensor IDs to BMON server IDs.  The file name 
+    # comes from the config file and is either a SQLite database (if the file
+    # extension is .sqlite) or a CSV file (if the file extension is .csv).
+    id_to_bmon_fn = Path(config['sensor_to_bmon_file'])
+    if id_to_bmon_fn.suffix.lower() == '.sqlite':
+        conn = sqlite3.connect(id_to_bmon_fn)
+        with conn:
+            cur = conn.cursor()
+            cur.execute('SELECT sensor_id, bmon_id from sensor_target')
+            rows = cur.fetchall()
+            id_to_bmon = dict(rows)
+
+    elif id_to_bmon_fn.suffix.lower() ==  '.csv':
+        id_to_bmon = {}
+        with open(id_to_bmon_fn) as csvfile:
+            filereader = csv.reader(csvfile)
+            for row in filereader:
+                id_to_bmon[row[0].strip()] = row[1].strip()
+
+    else:
+        raise TypeError('Invalid extension for configuration file.')
 
 except:
     logging.exception('Error in Script Initialization.')
     sys.exit()
 
-# Loop through files to process
-for fn in glob.glob(config['meter_files']):
+# Loop through file sources
+for src in config['file_sources']:
+    # create subdirectories under file source to hold completed readings
+    # and error readings.
+    file_pattern = Path(src['pattern'])
+    (file_pattern.parent / 'completed').mkdir(exist_ok=True)
+    (file_pattern.parent / 'errors').mkdir(exist_ok=True)
 
-    try:
-        # make dictionary keyed on meter number
-        # to hold readings
-        readings = {}
-
-        # track # of errors
-        err_ct = 0
-
-        with open(fn, 'rb') as csvfile:
-            for row in csv.reader(csvfile):
-                try:
-                    meter_num, ts_str, kwh = row[:3]
-                    if len(kwh.strip())==0:
-                        continue
-                    kw = float(kwh) * 4.0    # multiply by 4 to get average kW from kWh
-
-                    # convert timestamp string to Unix Epoch time.
-                    dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
-                    dt_aware = tz.localize(dt)
-                    ts = calendar.timegm(dt_aware.utctimetuple())
-                    # add 7.5 minutes to put timestamp in middle of interval
-                    ts += 7.5 * 60
-
-                    rec = (ts, meter_num, kw)
-
-                    # add to list of readings
-                    reading_list =  readings.get(meter_num, [])
-                    reading_list.append(rec)
-                    readings[meter_num] = reading_list
-
-                except:
-                    logging.exception('Error processing %s in %s' % (row, fn))
-                    err_ct += 1
-
-        # add readings to correct BMON poster
-        for meter_num, reading_list in readings.items():
-            if meter_num in meter_to_bmon:
-                poster_for_meter = posters[meter_to_bmon[meter_num]]
-                poster_for_meter.add_readings(reading_list)
-            else:
-                logging.error('Meter Number {} not in Meter database.'.format(meter_num))
-                err_ct += 1
-
-        # delete meter file if requested and no errors occurred
-        if config['delete_after_process'] and err_ct==0:
-            os.remove(fn)
-
-    except:
-        logging.exception('Error processing %s'  % fn)
+    # Loop through files to process
+    for fn in glob.glob(src['pattern']):
+        pass
 
 # wait until all BMON posters finish their work or stop
 # making progress on posting.
