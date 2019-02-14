@@ -2,14 +2,13 @@ sensor_to_bmon_file: /home/cea/meter_db/meters.sqlite
 logging_level: INFO
 file_sources:
   - pattern: /home/alan/chugach/*.csv
-    reader: chugach.Reader
-    reader_params:
-      chunk_size: 50
+    reader: cea
+    chunk_size: 50
     default_bmon: ahfc
     timezone: US/Alaska
     file_retention: 3
   - pattern: /home/alan/mea/*.xlsx
-    reader: mea.Reader
+    reader: mea
     default_bmon: mssd
     timezone: US/Alaska
     file_retention: 5

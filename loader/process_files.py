@@ -9,6 +9,7 @@ import os
 import csv
 import sys
 from datetime import datetime
+import importlib
 import calendar
 import sqlite3
 
@@ -64,8 +65,6 @@ try:
                                  post_time_file=poster_folder / ('%s_last_post_time' % id)
                                 )
 
-    os._exit(0)
-
     # Make a dictionary mapping sensor IDs to BMON server IDs.  The file name 
     # comes from the config file and is either a SQLite database (if the file
     # extension is .sqlite) or a CSV file (if the file extension is .csv).
@@ -94,15 +93,31 @@ except:
 
 # Loop through file sources
 for src in config['file_sources']:
-    # create subdirectories under file source to hold completed readings
-    # and error readings.
-    file_pattern = Path(src['pattern'])
-    (file_pattern.parent / 'completed').mkdir(exist_ok=True)
-    (file_pattern.parent / 'errors').mkdir(exist_ok=True)
 
-    # Loop through files to process
-    for fn in glob.glob(src['pattern']):
-        pass
+    # Extract the reader to use with this set of files and then
+    # delete it from the dictionary
+    reader_name = src['reader']
+    del src['reader']
+
+    # Dynamically import the module containing the reader class
+    mod = importlib.import_module(f'readers.{reader_name}')
+    
+    # develop a dictionary of the constructor parameters for the
+    # reader class, some of which may be overridden by values in the
+    # config file.
+    reader_params = {
+        'id_to_bmon': id_to_bmon,
+        'posters': posters,
+        'chunk_size': 100,
+        'time_zone': 'US/Alaska',
+        'file_retention': 3      # days 
+    }
+    reader_params.update(src)
+
+    # pass parameters as keyword arguments
+    reader_obj = mod.Reader(**reader_params)
+    reader_obj.load()     # process the files
+
 
 # wait until all BMON posters finish their work or stop
 # making progress on posting.
