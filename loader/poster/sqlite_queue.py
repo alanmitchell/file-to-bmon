@@ -61,7 +61,7 @@ class SqliteReliableQueue(object):
 
             # transfer any entries from the processing list back into the
             # queue and clear the processing list.
-            for id, obj_buffer in conn.execute(self._processing_iterate):
+            for _, obj_buffer in conn.execute(self._processing_iterate):
                 # append method does not work here, perhaps due to running
                 # a second 'with' statement.  Use direct SQL statemen instead.
                 conn.execute(self._append, (obj_buffer,))
@@ -74,7 +74,7 @@ class SqliteReliableQueue(object):
 
     def __iter__(self):
         with self._get_conn() as conn:
-            for id, obj_buffer in conn.execute(self._iterate):
+            for _, obj_buffer in conn.execute(self._iterate):
                 yield loads(str(obj_buffer))
 
     def __str__(self):
@@ -153,7 +153,7 @@ class SqliteReliableQueue(object):
         """Iterator returning items from the processing list.
         """
         with self._get_conn() as conn:
-            for id, obj_buffer in conn.execute(self._processing_iterate):
+            for _, obj_buffer in conn.execute(self._processing_iterate):
                 yield loads(str(obj_buffer))
 
     def processing_count(self):
