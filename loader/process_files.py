@@ -68,24 +68,31 @@ try:
     # Make a dictionary mapping sensor IDs to BMON server IDs.  The file name 
     # comes from the config file and is either a SQLite database (if the file
     # extension is .sqlite) or a CSV file (if the file extension is .csv).
-    id_to_bmon_fn = Path(config['sensor_to_bmon_file'])
-    if id_to_bmon_fn.suffix.lower() == '.sqlite':
-        conn = sqlite3.connect(id_to_bmon_fn)
-        with conn:
-            cur = conn.cursor()
-            cur.execute('SELECT sensor_id, bmon_id from sensor_target')
-            rows = cur.fetchall()
-            id_to_bmon = dict(rows)
+    # If no file is specified, then presumably every file source will have a 
+    # default bmon location.
+    if 'sensor_to_bmon_file' in config:
+        id_to_bmon_fn = Path(config['sensor_to_bmon_file'])
+        if id_to_bmon_fn.suffix.lower() == '.sqlite':
+            conn = sqlite3.connect(id_to_bmon_fn)
+            with conn:
+                cur = conn.cursor()
+                cur.execute('SELECT sensor_id, bmon_id from sensor_target')
+                rows = cur.fetchall()
+                id_to_bmon = dict(rows)
 
-    elif id_to_bmon_fn.suffix.lower() ==  '.csv':
-        id_to_bmon = {}
-        with open(id_to_bmon_fn) as csvfile:
-            filereader = csv.reader(csvfile)
-            for row in filereader:
-                id_to_bmon[row[0].strip()] = row[1].strip()
+        elif id_to_bmon_fn.suffix.lower() ==  '.csv':
+            id_to_bmon = {}
+            with open(id_to_bmon_fn) as csvfile:
+                filereader = csv.reader(csvfile)
+                for row in filereader:
+                    id_to_bmon[row[0].strip()] = row[1].strip()
 
+        else:
+            raise TypeError('Invalid extension for configuration file.')
+            
     else:
-        raise TypeError('Invalid extension for configuration file.')
+        # No mapping file so use empty dictionary.
+        id_to_bmon = {}
 
 except:
     logging.exception('Error in Script Initialization.')

@@ -7,7 +7,7 @@ file_sources:
     default_bmon: ahfc
     time_zone: US/Alaska
     file_retention: 3
-  - pattern: /home/alan/mea/*.xlsx
+  - pattern: /home/alan/mea/*.csv
     reader: mea
     default_bmon: mssd
     time_zone: US/Alaska
