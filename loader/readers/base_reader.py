@@ -26,35 +26,35 @@ class BaseReader:
         (self.file_dir / 'completed').mkdir(exist_ok=True)
         (self.file_dir / 'errors').mkdir(exist_ok=True)
         (self.file_dir / 'debug').mkdir(exist_ok=True)
+        print('done creating directories')
 
-        # *** TO DO *** Clean out old files in completed
+        # Clean out old files in completed directory
+        max_age = self.file_retention * 24. * 3600.    # seconds
+        for fn in glob(self.file_dir / 'completed' / '*'):
+            p = Path(fn)
+            if time.time() - p.stat().st_mtime() > max_age:
+                p.unlink()
 
     def load(self):
-        # Do a blank line check here, so only sending reader non-blank
-        # lines.
-        # If a line in the file returns records, remember to add the line
-        # to the Completed file.
-        # Wrap the parse_line call with try/except, and if an error occurs
-        # add the line to the Errors file.
 
         # Create list buffers for the poster object to accumulate records 
         # before posting.
         rd_buffer = {}
-        for id, _ in self.posters:
+        for id, _ in self.posters.items():
             rd_buffer[id] = []
 
         def post_buffer(min_post_size=1):
             """Posts the readings in the reading buffers if the reading count
             exceeds 'min_post_size'.  Also resets buffer if records are posted.
             """
-            for bmon, buf in rd_buffer.items:
+            for bmon, buf in rd_buffer.items():
                 if len(buf) >= min_post_size:
                     with open(self.file_dir / 'debug' / f'{bmon}.txt', 'a') as fout:
-                        print('\n'.join(buf), file = fout)
+                        print(buf, file = fout)
                     rd_buffer[bmon] = []  # reset buffer
 
         # Get default BMON ID.
-        if hasattr(self, 'default_bmon')
+        if hasattr(self, 'default_bmon'):
             default_bmon = self.default_bmon
         else:
             default_bmon = None
@@ -82,8 +82,9 @@ class BaseReader:
                     with open(f_err_path, 'w') as f_err, open(f_ok_path, 'w') as f_ok:
                         
                         # Write the header lines into each file
-                        print(header_str, file=f_err)
-                        print(header_str, file=f_ok)
+                        if header_str.strip():
+                            print(header_str, file=f_err)
+                            print(header_str, file=f_ok)
 
                         # process each line
                         for lin in fin:
@@ -121,11 +122,20 @@ class BaseReader:
                                 error_ct += 1
                                 print(lin, file=f_err)
 
+                    # if the error and success files have nothing in them, remove them.
+                    if f_err_path.stat().st_size == 0:
+                        f_err_path.unlink()
+                    if f_ok_path.stat().st_size == 0:
+                        f_ok_path.unlink()
+
+
             except:
                 logging.exception(f'Error processing {fn}')
 
             logging.info(f'Processed {fn}: {success_ct} successful lines, {error_ct} error lines.')
-
+            
+            # delete the processed file
+            Path(fn).unlink()
 
         # Send remaining readings to BMON poster
         post_buffer()
