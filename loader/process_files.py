@@ -89,7 +89,7 @@ try:
 
         else:
             raise TypeError('Invalid extension for configuration file.')
-            
+
     else:
         # No mapping file so use empty dictionary.
         id_to_bmon = {}
@@ -121,10 +121,10 @@ for src in config['file_sources']:
     }
     reader_params.update(src)
 
-    # pass parameters as keyword arguments
+    # pass parameters as keyword arguments to the Reader class within
+    # the imported module.
     reader_obj = mod.Reader(**reader_params)
     reader_obj.load()     # process the files
-
 
 # wait until all BMON posters finish their work or stop
 # making progress on posting.
