@@ -1,3 +1,7 @@
+"""Holds the BaseReader class, which is the base class for all File
+Readers.  File Readers parse sensor readings from files.  Files of different
+format require different File Readers.
+"""
 from pathlib import Path
 from datetime import datetime
 import logging
@@ -8,18 +12,52 @@ from glob import glob
 import pytz
 
 class BaseReader:
+    """The base class for File Readers.  An actual File Reader must subclass
+    this base class and implement the read_header() and parse_line() methods.
+    """
     
-    def __init__(self, **kw):
+    def __init__(self, pattern, posters, id_to_bmon={}, default_bmon=None, 
+                chunk_size=100, time_zone='US/Alaska', file_retention=3, **kw):
+        """Constructor for BaseReader.
 
-        # Store all of the keyword arguments as object attributes
+        Input Parameters:
+          pattern: glob file pattern indicating which files to process
+          posters: a dictionary of HttpPoster objects that are used to post to BMON
+              servers.  The dictionary is keyed on BMON id values that appear in the
+              bmon_servers section of the config file.
+          id_to_bmon: a dictionary that maps sensors ID values to the destination BMON
+              system, which is identified with a BMON id.
+          default_bmon: the ID of the BMON system where a sensor reading should go if
+              the sensor ID is not in the id_to_bmon dictionary.  If the sensor ID is
+              not in the id_to_bmon dictionary AND this default_bmon is not provided,
+              the line is considerered to be an error.
+          chunk_size: readings destined for a particular BMON system are batched together
+              and posted in minimum size groups.  'chunk_size' determines the minimum
+              number of readings posted in one batch.
+          time_zone: a Olson database timezone string, indicating the time zone of where
+              the sensors are located.
+          file_retention: lines from the file that are successfully parsed are added to 
+              a file in the 'completed' directory.  These files in the completed directory
+              are deleted when they become older than 'file_retention' days.
+          **kw:  other keyword arguments can be passed to the constructor for use by 
+              the subclass Reader. They are stored as object attributes.
+        """
+
+        # Store most of the parameters as object attributes
+        self.pattern = pattern
+        self.posters = posters
+        self.id_to_bmon = id_to_bmon
+        self.default_bmon = default_bmon
+        self.chunk_size = chunk_size
+        self.time_zone = pytz.timezone(time_zone)    # convert to timezone object
+        self.file_retention = file_retention
+
+        # Store all extra keyword arguments as object attributes
         for ky, val in kw.items():
             setattr(self, ky, val)
 
-        # Change the string timezone into a timezone object
-        self.time_zone = pytz.timezone(self.time_zone)
-
         # save the directory where the files are located as a Path
-        self.file_dir = Path(self.pattern).parent
+        self.file_dir = Path(pattern).parent
 
         # create subdirectories under file source to hold completed readings
         # and error readings.
@@ -28,12 +66,14 @@ class BaseReader:
         (self.file_dir / 'debug').mkdir(exist_ok=True)
 
         # Clean out old files in completed directory
-        max_age = self.file_retention * 24. * 3600.    # seconds
+        max_age = file_retention * 24. * 3600.    # seconds
         for f_path in (self.file_dir / 'completed').glob('*'):
             if time.time() - f_path.stat().st_mtime > max_age:
                 f_path.unlink()
 
     def load(self):
+        """Called to start the processing of files.
+        """
 
         # Create list buffers for the poster object to accumulate records 
         # before posting.

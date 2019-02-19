@@ -110,14 +110,10 @@ for src in config['file_sources']:
     mod = importlib.import_module(f'readers.{reader_name}')
     
     # develop a dictionary of the constructor parameters for the
-    # reader class, some of which may be overridden by values in the
-    # config file.
+    # reader class, some of which come from the config file.
     reader_params = {
         'id_to_bmon': id_to_bmon,
         'posters': posters,
-        'chunk_size': 100,
-        'time_zone': 'US/Alaska',
-        'file_retention': 3      # days 
     }
     reader_params.update(src)
 
