@@ -11,6 +11,7 @@ class Reader(BaseReader):
 
     def parse_line(self, lin):
 
+        # there is one reading per line, fields are separated by commas.
         fields = lin.split(',')
         meter_num, dt_tm_str, kwh = fields[:3]
 

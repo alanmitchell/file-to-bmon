@@ -3,19 +3,16 @@ logging_level: INFO
 file_sources:
   - pattern: /home/alan/chugach/*.csv
     reader: cea
-    chunk_size: 50
     default_bmon: ahfc
     time_zone: US/Alaska
     file_retention: 3
+    chunk_size: 50
   - pattern: /home/alan/mea/*.csv
     reader: mea
-    default_bmon: mssd
-    time_zone: US/Alaska
-    file_retention: 5
 bmon_servers:
   ahfc:
     url: https://bms.ahfc.us/readingdb/reading/store/
     store_key: xyz
-  an:
-    url: https://bmon.analysisnorth.com/readingdb/reading/store/
+  mssd:
+    url: https://bmon.matsuk12.us/readingdb/reading/store/
     store_key: def
