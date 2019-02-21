@@ -86,10 +86,13 @@ class BaseReader:
             exceeds 'min_post_size'.  Also resets buffer if records are posted.
             """
             for bmon_id, buf in rd_buffer.items():
+
                 if len(buf) >= min_post_size:
-                    with open(self.file_dir / 'debug' / f'{bmon_id}.txt', 'a') as fout:
-                        for rd in buf:
-                            print(rd, file=fout)
+                    if logging.root.level == logging.DEBUG:
+                        with open(self.file_dir / 'debug' / f'{bmon_id}.txt', 'a') as fout:
+                            for rd in buf:
+                                print(rd, file=fout)
+                    
                     rd_buffer[bmon_id] = []  # reset buffer
 
         # Get default BMON ID, if not present, set to None.

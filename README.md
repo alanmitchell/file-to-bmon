@@ -105,14 +105,70 @@ AN448234223, mssd
 sensor_xyz, ahfc
 ```
 
-The `sensor_to_bmon_file` setting is optional *if* instead you provide a `default_bmon` setting
+One advantage of using a SQLite database file for this mapping is that a simple SQLite
+web-based editing application can be used to maintain the data.  Such an application
+is [phpLiteAdmin](https://www.phpliteadmin.org/).
+
+The `sensor_to_bmon_file` file is optional *if* instead you provide a `default_bmon` setting
 for each of the file sources defined in the `file_sources` section of this Configuration
-file.
+file.  If you take this approach, you do not need to provide the `sensor_to_bmon_file` setting
+line in the Configuration file.
 
 If a sensor ID is found in one of the processed files that is not provided in the 
 `sensor_to_bmon_file` and there is no `default_bmon` setting for the file source, the
 line containing the Sensor ID is considered an error, and it is added to the error file.
 
 ---
+
+```YAML
+logging_level: INFO
+```
+
+The `logging_level` setting determines how much information will be put into the application's
+log file, `process_files.log`.  The choices for this setting, ranging from the most amount of
+information to the least, are `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`.  If this setting
+is not provided, it defaults to `INFO`.
+
+---
+
+```YAML
+file_sources:
+  - pattern: /home/alan/chugach/*.csv
+    reader: cea
+    default_bmon: ahfc
+    time_zone: US/Alaska
+    file_retention: 3
+    chunk_size: 50
+  - pattern: /home/alan/mea/*.csv
+    reader: mea
+```
+
+The `file_sources` key or section in the Configuration file consists of a list of file sets
+that will be processed by the script.  The `-` character starts a new list item, describing
+a particular set of files and how they should be processed.  In the sample above, there
+are two different sets of files that will be processed, because there are two `-` items
+indented under the `file_sources` key.
+
+For each set of files, there are a numbers of settings that control the processing of the
+files.  First, there are two *required* settings that must be present for each file set:
+`pattern` and `reader`.
+
+`pattern` is file pattern compatible with the [Python glob function](https://docs.python.org/3/library/glob.html).
+In the example above, the `pattern` for the first file set is `/home/alan/chugach/*.csv`.
+This pattern identifies all files withe the `.csv` extension found in the `/home/alan/chugach`
+directory.  All of those files will be processed by the script.
+
+The second required setting for each file set is the `reader` setting.  This setting idenfies the
+Python Reader module that will be used to parse the file; each different file format requires
+a different type of reader module.  There is a subsequent section that explains these Readers in
+more detail.  For the example above, the Reader is `cea`, so the script will use the Reader found
+in the `cea.py` file in the `loader/readers` directory of this project.  So, the `reader` must
+name a Python module (without the `.py` extension) found in the `loader/readers` directory.
+The structure of that Reader module is described in a subsequent section.  The `cea` reader in the
+example happens to be a Reader that knows how to parse readings from a Chugach Electric
+Association 15-minute elecric meter data file. 
+
+---
+
 
 ## Reader Classes for Parsing Files
