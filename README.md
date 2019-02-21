@@ -70,7 +70,31 @@ in the `log` subdirectory of the directory holding the configuration file.
 
 ## The Configuration File
 
-The Configuration file controls the operation of the script.  There is an example configuration
-file provided [in the repository here](config/config_example.yaml).
+The Configuration file controls the operation of the script, and the path to the Configuration
+file must be provided as the first command line argument when using the script.
+There is an example Configuration
+file provided [in the repository here](config/config_example.yaml).  The Configuration file uses
+[YAML format](https://rollout.io/blog/yaml-tutorial-everything-you-need-get-started/) for
+simplicity.  This section describes the contents of the Configuration file.
+
+---
+
+```YAML
+sensor_to_bmon_file: /home/cea/meter_db/meters.sqlite
+```
+The `sensor_to_bmon_file` setting states the path to the file that maps Sensor IDs to BMON servers.
+For each Sensor ID read from the files being processed, this mapping file is checked to 
+see where the reading should be posted.  BMON servers are identified by the IDs that you
+create in the `bmon_servers` section of this Configuration file.  In the sample Configuration
+file, you will find two BMON server IDs: `ahfc` and `mssd`.
+
+The `sensor_to_bmon_file` setting is optional *if* instead you provide a `default_bmon` setting
+for each of the file sources defined in the `file_sources` section of this Configuration
+file.
+
+If a sensor ID is found in one of the processed files that is not provided in the 
+`sensor_to_bmon_file` and there is no `default_bmon` setting for the file source, the
+line containing the Sensor ID is considered an error, and it is added to the error file.
+---
 
 ## Reader Classes for Parsing Files

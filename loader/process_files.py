@@ -50,8 +50,11 @@ except:
 try:
     # set the log level. Because we are setting this on the logger, it will apply
     # to all handlers (unless maybe you set a specific level on a handler?).
-    # defaults to INFO if a bad entry in the config file.
-    logging.root.setLevel(getattr(logging, config['logging_level'].upper(), 20))
+    # defaults to INFO if no entry or a bad entry in the config file.
+    if 'logging_level' in config:
+        logging.root.setLevel(getattr(logging, config['logging_level'].upper(), logging.INFO))
+    else:
+        logging.root.setLevel(logging.INFO)
     logging.info('Started file processing.')
 
     # start BMON posters and put in a dictionary
