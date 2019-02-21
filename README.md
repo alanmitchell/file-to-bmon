@@ -95,6 +95,7 @@ file.
 If a sensor ID is found in one of the processed files that is not provided in the 
 `sensor_to_bmon_file` and there is no `default_bmon` setting for the file source, the
 line containing the Sensor ID is considered an error, and it is added to the error file.
+
 ---
 
 ## Reader Classes for Parsing Files
