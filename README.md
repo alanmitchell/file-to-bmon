@@ -88,6 +88,23 @@ see where the reading should be posted.  BMON servers are identified by the IDs 
 create in the `bmon_servers` section of this Configuration file.  In the sample Configuration
 file, you will find two BMON server IDs: `ahfc` and `mssd`.
 
+There are two possible formats for this Sensor ID-to-BMON mapping file.  The file can either
+be a SQLite database, and if so, the file must end with the `.sqlite` extension.  If the file
+is a SQLite database, the database must have a table named `sensor_target` and that table
+must have two string columns: `sensor_id` and `bmon_id`.  Each row of the table maps a
+particular Sensor ID to a destination BMON server.
+
+The other possible format for the mapping file is a comma-separated-value (CSV) text file. If
+this file format is used, each row of the file should have a Sensor ID and the target BMON ID,
+separated by a comma.  The file name must end in the extension `.csv`. Here is an example of
+the file contents:
+
+```text
+AK9023432, ahfc
+AN448234223, mssd
+sensor_xyz, ahfc
+```
+
 The `sensor_to_bmon_file` setting is optional *if* instead you provide a `default_bmon` setting
 for each of the file sources defined in the `file_sources` section of this Configuration
 file.
