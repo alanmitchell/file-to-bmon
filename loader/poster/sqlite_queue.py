@@ -75,7 +75,7 @@ class SqliteReliableQueue(object):
     def __iter__(self):
         with self._get_conn() as conn:
             for _, obj_buffer in conn.execute(self._iterate):
-                yield loads(str(obj_buffer))
+                yield loads(obj_buffer)
 
     def __str__(self):
         res = 'Queue:\n'
@@ -129,7 +129,7 @@ class SqliteReliableQueue(object):
             if id:
                 conn.execute(self._popleft_del, (id,))
                 conn.execute(self._processing_append, (id, obj_buffer))
-                return id, loads(str(obj_buffer))
+                return id, loads(obj_buffer)
         return None, None
 
     def peek(self):
@@ -138,7 +138,7 @@ class SqliteReliableQueue(object):
         with self._get_conn() as conn:
             cursor = conn.execute(self._peek)
             try:
-                return loads(str(cursor.fetchone()[0]))
+                return loads(cursor.fetchone()[0])
             except TypeError:
                 return None
 
@@ -154,7 +154,7 @@ class SqliteReliableQueue(object):
         """
         with self._get_conn() as conn:
             for _, obj_buffer in conn.execute(self._processing_iterate):
-                yield loads(str(obj_buffer))
+                yield loads(obj_buffer)
 
     def processing_count(self):
         """Returns the number of items in the processing list.

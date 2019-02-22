@@ -138,7 +138,7 @@ file_sources:
     default_bmon: ahfc
     time_zone: US/Alaska
     file_retention: 3
-    chunk_size: 50
+    chunk_size: 200
   - pattern: /home/alan/mea/*.csv
     reader: mea
 ```
@@ -186,7 +186,7 @@ is not provided for the file set, it defaults to 3 days.
 * `chunk_size`: Sensor readings are posted in batches to the BMON servers.  `chunk_size` sets the
 minimum number of readings that will be sent to a BMON server in one batch (all readings will
 ultimately be sent, so the final batch may be smaller than `chunk_size`).  This setting defaults
-to 100, which is generally a suitable value.
+to 300, which is generally a suitable value.
 
 ---
 

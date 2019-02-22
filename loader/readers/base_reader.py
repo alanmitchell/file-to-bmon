@@ -17,7 +17,7 @@ class BaseReader:
     """
     
     def __init__(self, pattern, posters, id_to_bmon={}, default_bmon=None, 
-                chunk_size=100, time_zone='US/Alaska', file_retention=3, **kw):
+                chunk_size=300, time_zone='US/Alaska', file_retention=3, **kw):
         """Constructor for BaseReader.
 
         Input Parameters:
@@ -33,7 +33,9 @@ class BaseReader:
               the line is considerered to be an error.
           chunk_size: readings destined for a particular BMON system are batched together
               and posted in minimum size groups.  'chunk_size' determines the minimum
-              number of readings posted in one batch.
+              number of readings posted in one batch.  A 'chunk_size' of 300 results in
+              about 11 KB of data posted per chunk, which will not make other pending
+              writes wait long.  Speed of transfer does not improve much beyond 300.
           time_zone: a Olson database timezone string, indicating the time zone of where
               the sensors are located.
           file_retention: lines from the file that are successfully parsed are added to 
@@ -88,6 +90,9 @@ class BaseReader:
             for bmon_id, buf in rd_buffer.items():
 
                 if len(buf) >= min_post_size:
+
+                    self.posters[bmon_id].add_readings(buf)
+
                     if logging.root.level == logging.DEBUG:
                         with open(self.file_dir / 'debug' / f'{bmon_id}.txt', 'a') as fout:
                             for rd in buf:

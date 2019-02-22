@@ -1,3 +1,4 @@
+# See the Project README.md file for explanation of this Configuration file.
 sensor_to_bmon_file: /home/cea/meter_db/meters.sqlite
 logging_level: INFO
 file_sources:
@@ -6,7 +7,7 @@ file_sources:
     default_bmon: ahfc
     time_zone: US/Alaska
     file_retention: 3
-    chunk_size: 50
+    chunk_size: 200
   - pattern: /home/alan/mea/*.csv
     reader: mea
 bmon_servers:
