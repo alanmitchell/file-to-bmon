@@ -261,8 +261,8 @@ class Reader(BaseReader):
 The first requiement is that the file must contain a class named `Reader` and that class
 must subclass the base_reader.BaseReader class, as shown in the above sample file.
 
-Next, the class must implement two methods: `read_header()` and `parse_line()`.  Addressing
-the `read_header()` method first, it must return a list of header lines from the file
+Next, the class must implement two methods: `read_header()` and `parse_line()`.  First
+addressing the `read_header()` method, it must return a list of header lines from the file
 being processed. These lines do not contain sensor data, but may contain sensor labels
 or other general information from the file.  These are needed by the script because they
 are used to create header lines for the `_ok` and the `_err` files that are created for

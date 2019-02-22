@@ -88,6 +88,8 @@ try:
             with open(id_to_bmon_fn) as csvfile:
                 filereader = csv.reader(csvfile)
                 for row in filereader:
+                    if len(row) != 2:
+                        continue
                     id_to_bmon[row[0].strip()] = row[1].strip()
 
         else:
