@@ -168,7 +168,26 @@ The structure of that Reader module is described in a subsequent section.  The `
 example happens to be a Reader that knows how to parse readings from a Chugach Electric
 Association 15-minute elecric meter data file. 
 
----
+There are a number of optional settings for each file set, including:
 
+* `default_bmon`: This is the BMON ID (must match one of the keys in the `bmon_servers` section)
+of the BMON server that will be targeted if the Sensor ID is not in the `sensor_to_bmon_file`, or
+the `sensor_to_bmon_file` does not exist.  If `default_bmon` is not provided and a Sensor ID without
+a mapping entry appears, the file line will be considered an error and added to the errors file.
+* `time_zone`: BMON stores timestamps in Universal Coordinated Time (UTC), and therefore Reader modules
+must convert date/times in the processed file into UTC.  If timezone information is not provided in
+the date/time string, the Reader will need to know the timezone associated with the value.
+This setting provides that timezone.  It should be a value from [this list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+If not provided, it defaults to `US/Alaska`.
+* `file_retention`: This gives the number of days that the files in the `completed` subdirectory
+will be saved before deleting.  These files contain lines that were successfully processed
+by the script, so the data from these lines should be in the BMON database.  if `file_retention`
+is not provided for the file set, it defaults to 3 days.
+* `chunk_size`: Sensor readings are posted in batches to the BMON servers.  `chunk_size` sets the
+minimum number of readings that will be sent to a BMON server in one batch (all readings will
+ultimately be sent, so the final batch may be smaller than `chunk_size`).  This setting defaults
+to 100, which is generally a suitable value.
+
+---
 
 ## Reader Classes for Parsing Files
