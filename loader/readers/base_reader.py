@@ -114,7 +114,7 @@ class BaseReader:
                     # get the header lines from the file, and also reassemble into
                     # a string.
                     header_lines = self.read_header(fin, fn)
-                    header_str = '/n'.join(header_lines)
+                    header_str = ''.join(header_lines)    # /n are already at end of lines
 
                     # Make Paths for both error lines and completed lines
                     f_path = Path(fn)
@@ -192,12 +192,13 @@ class BaseReader:
         dt_aware = self.time_zone.localize(dt)
         return calendar.timegm(dt_aware.utctimetuple())
 
-    def read_header(self, fobj, file_path):
+    def read_header(self, fobj, fname):
         """This method must be overridden by the Reader subclass.  'fobj' is a file object
-        opened for reading of the file being loaded. 'file_path' is a pathlib.Path
-        object pointing at the file. 
-        This method should return a list of lines (strings, no line termination) that 
-        are the header lines in the file.
+        opened for reading of the file being loaded. 'fname' is the full path to the file,
+        a string.
+        This method should return a list of lines that are the header lines in the file.
+        These lines should have newline characters at the end of each line, which will naturally
+        occur if the lines were read with the readline() method.
         """
         raise TypeError('The read_header() method must be implemented in the Reader sublclass.')
 

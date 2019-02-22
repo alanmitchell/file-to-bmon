@@ -190,4 +190,128 @@ to 100, which is generally a suitable value.
 
 ---
 
+```YAML
+bmon_servers:
+  ahfc:
+    url: https://bms.ahfc.us/readingdb/reading/store/
+    store_key: xyz
+  mssd:
+    url: https://bmon.matsuk12.us/readingdb/reading/store/
+    store_key: def
+```
+
+The last section of the Configuration, `bmon_servers` file contains keys for each of the
+BMON servers that sensor readings can be directed to (this is not a list like the `file_sources`
+section; each BMON server has a separate key in the section). The keys are the IDs of each
+BMON server; in the example above: `ahfc` and `mssd` are the BMON IDs.  These are values that
+appear in the `sensor_to_bmon_file` file and in the `default_bmon` setting.
+
+Each BMON server, in turn, has two settings the `url` and the `store_key`:
+
+* `url`: This is the URL endpoint for posting sensor readings to the BMON server. It will
+always end with `/readingdb/reading/store/`.
+* `store_key`: This is the secret store key that gives authority to store readings into
+the BMON database. It appears in the `settings.py` file for the BMON server.
+
+---
+
 ## Reader Classes for Parsing Files
+
+Reader classes are used to parse sensor readings from the files being processed.  Each
+file format being processed will require a separate Reader class.  A Reader class is a
+Python class, and thus involves programming knowledge of Python in order to create.  Each
+Reader class occupies a separate Python module file, and all of the files are located in
+the `/loader/readers` directory of this project.  The name of the Python module file, without
+the `.py` extension is the name of the Reader for purposes of the `reader` setting
+in the `file_sources` section of the configuration file described above.  So, when using the Reader
+found in the `/loader/readers/cea.py` file, the name `cea` should be used for the `reader`
+setting in the `file_sources` section.
+
+A Reader class has a number of requirements, best understood by looking at a sample Reader
+class.  Here is the [`cea` Reader class](loader/readers/cea.py):
+
+```python
+"""Reader file to parse Chugach Electric Association 15-minute
+meter data.
+"""
+from .base_reader import BaseReader
+
+class Reader(BaseReader):
+    
+    def read_header(self, fobj, file_name):
+        # There are no header lines in the file
+        return []
+
+    def parse_line(self, lin):
+
+        # there is one reading per line, fields are separated by commas.
+        fields = lin.split(',')
+        meter_num, dt_tm_str, kwh = fields[:3]
+
+        # multiply by 4 to get average kW during 15 minute interval
+        kw = float(kwh) * 4.0
+
+        ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S')
+        # add 7.5 minutes to put timestamp in middle of interval
+        ts += 7.5 * 60
+
+        return [(ts, meter_num.strip(), kw)]
+```
+
+The first requiement is that the file must contain a class named `Reader` and that class
+must subclass the base_reader.BaseReader class, as shown in the above sample file.
+
+Next, the class must implement two methods: `read_header()` and `parse_line()`.  Addressing
+the `read_header()` method first, it must return a list of header lines from the file
+being processed. These lines do not contain sensor data, but may contain sensor labels
+or other general information from the file.  These are needed by the script because they
+are used to create header lines for the `_ok` and the `_err` files that are created for
+each file processed.  It may also be the case that this particular Reader class may need
+information from those header lines in order to subsequently process the lines containing
+sensor readings (save needed information as object attributes, e.g. 
+`self.sensor_id = extracted_id`).
+
+There are two parameters passed into the `read_header()` method: `fobj` is the
+opened-for-reading file object, and `file_name` is the full path to the file.  `fobj`
+can be used to easily read header lines from the file.
+In the sample above, there are no header lines in the file, so an empty list is returned, and
+neither `fobj` nor `file_name` are used. But, if there were three header lines in the file, 
+the code would look like this:
+
+```python
+def read_header(self, fobj, file_name):
+    header_lines = []
+    for i in range(3):
+        header_lines.append(fobj.readline())
+    return header_lines
+```
+
+Or, more succinctly:
+
+```python
+def read_header(self, fobj, file_name):
+    return [fobj.readline() for i in range(3)]
+```
+
+Note that the `readline()` method of the file object leaves the newline character
+at the end of each line.  Those newline characters should be left in place as the
+calling routine expects them.
+
+Next, consider the `parse_line()` method, which needs to be implemented by the Reader
+class.  This method receives one parameter, `lin`, which is the line of data to be
+parsed to extract sensor reading(s).  The calling routine has removed whitespace from
+the start and end of `lin`.  The job of the `parse_line()` method is to return a list of
+sensor reading(s) parsed from the line.  Each sensor reading is a three-tuple, consisting
+of: (Unix Epoch timestamp, sensor ID, sensor value).  The Unix Epoch timestamp is a floating
+point number indicating the time of the reading as the number of seconds past
+January 1, 1970 00:00. The 'sensor ID' is a string ID uniquely identifying this sensor, 
+and the sensor value is the floating point value of the sensor reading.
+
+The BaseReader class provides a useful utility function that converts a string date/time
+into a Unix Epoch timestamp value. The function is available as `self.ts_from_date_str`, and
+you can see it in use in the sample code above.  It uses the timezone that was specified in the
+Configuration file for this set of files.
+
+The file format for the sample code above only has one sensor reading for each line
+in the file.  Thus, the code above only returns one tuple within the returned list of
+readings.

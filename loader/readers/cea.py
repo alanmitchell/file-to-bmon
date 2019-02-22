@@ -5,7 +5,7 @@ from .base_reader import BaseReader
 
 class Reader(BaseReader):
     
-    def read_header(self, fobj, file_path):
+    def read_header(self, fobj, file_name):
         # There are no header lines in the file
         return []
 
