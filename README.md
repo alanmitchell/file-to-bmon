@@ -132,6 +132,18 @@ is not provided, it defaults to `INFO`.
 ---
 
 ```YAML
+dry_run: False
+```
+
+If `dry_run` is True, the sensor readings will *not* be posted to BMON servers.  Instead,
+they will be written to a file in the `debug` subdirectory beneath the directory where the
+data files are.  The debug files are named according to the ID of the BMON server they are
+destined for. Also, when `dry_run` is True, the files being processed are *not* deleted
+after processing.
+
+---
+
+```YAML
 file_sources:
   - pattern: /home/alan/chugach/*.csv
     reader: cea
