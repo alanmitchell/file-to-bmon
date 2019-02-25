@@ -1,6 +1,7 @@
 # See the Project README.md file for explanation of this Configuration file.
 sensor_to_bmon_file: /home/cea/meter_db/meters.sqlite
 logging_level: INFO
+dry_run: False
 file_sources:
   - pattern: /home/alan/chugach/*.csv
     reader: cea

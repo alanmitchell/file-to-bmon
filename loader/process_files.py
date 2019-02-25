@@ -113,12 +113,20 @@ for src in config['file_sources']:
 
     # Dynamically import the module containing the reader class
     mod = importlib.import_module(f'readers.{reader_name}')
+
+    # Determine Dry-Run status.  If setting is not present, then not
+    # a dry run.
+    if 'dry_run' in config:
+        dry_run = config['dry_run']
+    else:
+        dry_run = False
     
     # develop a dictionary of the constructor parameters for the
     # reader class, some of which come from the config file.
     reader_params = {
         'id_to_bmon': id_to_bmon,
         'posters': posters,
+        'dry_run': dry_run,
     }
     reader_params.update(src)
 
