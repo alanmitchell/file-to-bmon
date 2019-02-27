@@ -1,7 +1,5 @@
 # file-to-bmon
-Loads sensor reading data located in files into the BMON Building Monitoring system.  Uses Python 3.6+.
-
-## *NOT COMPLETE YET -- DO NOT USE*
+Loads sensor reading data located in files into the BMON Building Monitoring system.  Uses Python 3.6 or later.
 
 ## Introduction
 
