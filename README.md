@@ -47,3 +47,4 @@ execution of the script.
 Here is documentation about script use, configuration and installation:
 
 * [Results of Script Execution and How to Configure Script](docs/script_docs.md)
+* [Sample Installation and Use of the Script on the AHFC Webfaction Server](docs/install_docs.md)
