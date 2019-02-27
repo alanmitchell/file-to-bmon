@@ -19,7 +19,7 @@ The SQLite database that maps Sensor IDs to BMON servers is housed in the main a
 
     /home/ahfc/sensor_db/sensor_to_bmon.sqlite
 
-Having it there made it easily accessible to the [phpliteadmin tool](https://www.phpliteadmin.org/), 
+Having it there made it easily accessible to the [phpLiteAdmin tool](https://www.phpliteadmin.org/), 
 which allows for adding and editing 
 Sensor IDs that are being processed.  That AHFC phpliteadmin tool 
 is accessible at:  http://ahfc.webfactional.com/editdb/phpliteadmin.php .

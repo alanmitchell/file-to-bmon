@@ -47,4 +47,9 @@ execution of the script.
 Here is documentation about script use, configuration and installation:
 
 * [Results of Script Execution and How to Configure Script](docs/script_docs.md)
+
+The following documents are specific to the Alaska Housing Finance Corporation installation of the
+file-to-bmon script.  However, some information in the documentation may be useful for other 
+installations.
+* [Adding and Editing Sensor ID to BMON Server relationships](docs/sensor_to_bmon.md)
 * [Sample Installation and Use of the Script on the AHFC Webfaction Server](docs/install_docs.md)
