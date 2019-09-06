@@ -1,3 +1,4 @@
 PyYAML>=3.13
 pytz>=2018.5
 requests>=2.19.1
+xlsx2csv>=0.7.6
