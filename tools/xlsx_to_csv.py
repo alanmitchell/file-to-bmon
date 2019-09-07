@@ -25,7 +25,7 @@ xlsx_folder = sys.argv[1]
 for p_xlsx in Path(xlsx_folder).glob('*.xlsx'):
     p_csv = p_xlsx.with_suffix('.csv')
     try:
-        Xlsx2csv(p_xlsx, outputencoding="utf-8").convert(p_csv)
+        Xlsx2csv(str(p_xlsx), outputencoding="utf-8").convert(str(p_csv))
         if p_csv.exists():
             p_xlsx.unlink()
     except:
