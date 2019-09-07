@@ -14,12 +14,13 @@ class Reader(BaseReader):
         # there is one reading per line, fields are separated by commas.
         fields = lin.split(',')
         meter_num, acct, dt_tm_str, kwh = fields[:4]
+        meter_num = int(float(meter_num))
 
         # multiply by 4 to get average kW during 15 minute interval
         kw = float(kwh) * 4.0
 
-        ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S')
+        ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S.%f')
         # add 7.5 minutes to put timestamp in middle of interval
         ts += 7.5 * 60
 
-        return [(ts, f'gvea_{meter_num.strip()}', kw)]
+        return [(ts, f'gvea_{meter_num}', kw)]
