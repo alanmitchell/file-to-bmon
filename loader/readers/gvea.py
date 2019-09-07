@@ -22,4 +22,4 @@ class Reader(BaseReader):
         # add 7.5 minutes to put timestamp in middle of interval
         ts += 7.5 * 60
 
-        return [(ts, meter_num.strip(), kw)]
+        return [(ts, f'gvea_{meter_num.strip()}', kw)]
