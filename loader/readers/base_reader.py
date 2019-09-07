@@ -142,8 +142,8 @@ class BaseReader:
                         
                         # Write the header lines into each file
                         if header_str.strip():
-                            print(header_str, file=f_err)
-                            print(header_str, file=f_ok)
+                            f_err.write(header_str)
+                            f_ok.write(header_str)
 
                         # process each line
                         for lin in fin:
