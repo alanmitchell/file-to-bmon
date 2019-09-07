@@ -182,9 +182,9 @@ class BaseReader:
                                 print(lin, file=f_err)
 
                     # if the error and success files have nothing in them, remove them.
-                    if f_err_path.stat().st_size == 0:
+                    if error_ct == 0:
                         f_err_path.unlink()
-                    if f_ok_path.stat().st_size == 0:
+                    if success_ct == 0:
                         f_ok_path.unlink()
 
 
