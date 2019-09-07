@@ -13,7 +13,7 @@ This script is used with Golden Valley Electric 15 minute electric
 meter readings files.
 """
 import sys
-from path import Path
+from pathlib import Path
 from xlsx2csv import Xlsx2csv
 
 # get the first command line argument which is the path the folder
