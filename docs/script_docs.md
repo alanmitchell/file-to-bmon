@@ -285,3 +285,18 @@ Configuration file for this set of files.
 The file format for the sample code above only has one sensor reading for each line
 in the file.  Thus, the code above only returns one tuple within the returned list of
 readings.
+
+### Testing Reader Classes
+
+A utility script is available that allows you test your Reader class before deployment.
+The script is `tools/test_reader.py` is example usage is
+
+    python3 test_reader.py gvea /home/user12/data/testfile.csv
+
+In this example, `gvea` is the module name holding the Reader class to be tested, and 
+`/home/user12/data/testfile.csv` is the path to a file containg test data to read.  Any
+errors that occur during execution are allowed to surface to facilitate debugging.
+If the script executes successfully, it prints the header rows from the data file, and
+it prints the sensor readings that are parsed from the first three rows of the data
+file.
+ 

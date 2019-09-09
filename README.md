@@ -46,6 +46,15 @@ Here is documentation about script use, configuration and installation:
 
 * [Results of Script Execution and How to Configure Script](docs/script_docs.md)
 
+As well as the main file-to-bmon script, this project includes additional utility scripts
+that may be useful:
+
+* A script to test "Reader" classes before deployment. See documentation at the end of
+  [this page](docs/script_docs.md).
+* A script that can be used to convert Excel xlsx files into csv text files so that they
+  can be processed by file-to-bmon. This script would typically be scheduled as a cron
+  job.  Read [the code](tools/xlsx_to_csv.py) for more documentation.
+
 The following documents are specific to the Alaska Housing Finance Corporation installation of the
 file-to-bmon script.  However, some information in the documentation may be useful for other 
 installations.
