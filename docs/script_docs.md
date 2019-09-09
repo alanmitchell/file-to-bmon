@@ -289,7 +289,7 @@ readings.
 ### Testing Reader Classes
 
 A utility script is available that allows you test your Reader class before deployment.
-The script is `tools/test_reader.py` is example usage is
+The script is `tools/test_reader.py`. Example usage is:
 
     python3 test_reader.py gvea /home/user12/data/testfile.csv
 
@@ -299,4 +299,3 @@ errors that occur during execution are allowed to surface to facilitate debuggin
 If the script executes successfully, it prints the header rows from the data file, and
 it prints the sensor readings that are parsed from the first three rows of the data
 file.
- 
