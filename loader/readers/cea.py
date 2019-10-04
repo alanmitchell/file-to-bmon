@@ -14,9 +14,11 @@ class Reader(BaseReader):
         # there is one reading per line, fields are separated by commas.
         fields = lin.split(',')
         meter_num, dt_tm_str, kwh = fields[:3]
+        meter_mult = float(fields[-1])
 
-        # multiply by 4 to get average kW during 15 minute interval
-        kw = float(kwh) * 4.0
+        # multiply by 4 to get average kW during 15 minute interval.  
+        # Include meter multiplier.
+        kw = float(kwh) * 4.0 * meter_mult
 
         ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S')
         # add 7.5 minutes to put timestamp in middle of interval
