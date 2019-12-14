@@ -106,34 +106,38 @@ except:
 # Loop through file sources
 for src in config['file_sources']:
 
-    # Extract the reader to use with this set of files and then
-    # delete it from the dictionary
-    reader_name = src['reader']
-    del src['reader']
+    try:
+        # Extract the reader to use with this set of files and then
+        # delete it from the dictionary
+        reader_name = src['reader']
+        del src['reader']
 
-    # Dynamically import the module containing the reader class
-    mod = importlib.import_module(f'readers.{reader_name}')
+        # Dynamically import the module containing the reader class
+        mod = importlib.import_module(f'readers.{reader_name}')
 
-    # Determine Dry-Run status.  If setting is not present, then not
-    # a dry run.
-    if 'dry_run' in config:
-        dry_run = config['dry_run']
-    else:
-        dry_run = False
-    
-    # develop a dictionary of the constructor parameters for the
-    # reader class, some of which come from the config file.
-    reader_params = {
-        'id_to_bmon': id_to_bmon,
-        'posters': posters,
-        'dry_run': dry_run,
-    }
-    reader_params.update(src)
+        # Determine Dry-Run status.  If setting is not present, then not
+        # a dry run.
+        if 'dry_run' in config:
+            dry_run = config['dry_run']
+        else:
+            dry_run = False
+        
+        # develop a dictionary of the constructor parameters for the
+        # reader class, some of which come from the config file.
+        reader_params = {
+            'id_to_bmon': id_to_bmon,
+            'posters': posters,
+            'dry_run': dry_run,
+        }
+        reader_params.update(src)
 
-    # pass parameters as keyword arguments to the Reader class within
-    # the imported module.
-    reader_obj = mod.Reader(**reader_params)
-    reader_obj.load()     # process the files
+        # pass parameters as keyword arguments to the Reader class within
+        # the imported module.
+        reader_obj = mod.Reader(**reader_params)
+        reader_obj.load()     # process the files
+
+    except:
+        logging.exception(f'Error processing {src['pattern']}')
 
 # wait until all BMON posters finish their work or stop
 # making progress on posting.
