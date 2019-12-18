@@ -137,7 +137,7 @@ for src in config['file_sources']:
         reader_obj.load()     # process the files
 
     except:
-        logging.exception(f'Error processing {src['pattern']}')
+        logging.exception(f'Error processing {src["pattern"]}')
 
 # wait until all BMON posters finish their work or stop
 # making progress on posting.
