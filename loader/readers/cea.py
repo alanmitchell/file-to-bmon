@@ -20,7 +20,12 @@ class Reader(BaseReader):
         # Include meter multiplier.
         kw = float(kwh) * 4.0 * meter_mult
 
-        ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S')
+        try:
+            ts = self.ts_from_date_str(dt_tm_str, '%Y-%m-%d %H:%M:%S')
+        except:
+            # MOA sends the date in this format
+            ts = self.ts_from_date_str(dt_tm_str, '%m/%d/%Y %H:%M')
+
         # add 7.5 minutes to put timestamp in middle of interval
         ts += 7.5 * 60
 
