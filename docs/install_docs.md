@@ -3,11 +3,9 @@
 These notes document the installation of the file-to-bmon script on the Alaska Housing Finance
 Corporation [Webfaction](https://www.webfaction.com/) server.  In that installation,
 the script is periodicially run as a cron job, processing any new files that have
-arrived in the file source directories via FTP since the prior run of the script.  This installation is complicated because the data files and the
-sensor ID to BMON ID mapping file are located in different User accounts on the server.  
-An installation where all files are owned by one User would be much simpler.
+arrived in the file source directories via FTP since the prior run of the script.
 
-The "file-to-bmon" repo is cloned into the "filebmon" User directory on the AHFC Webfaction server. That "filebmon" User has read/write access to all of the Users that are suppliers of files to process (such as "cea" and "gvea").  Multipler User accounts are set up so that each supplier of files has their own FTP site.  Configure a new supplier of files like so:
+The "file-to-bmon" repo is cloned into the "filebmon" User directory on the AHFC Webfaction server. That "filebmon" User has read/write access to all of the Users that are suppliers of files to process (such as "cea" and "gvea").  Multiple User accounts are set up so that each supplier of files has their own FTP site.  Configure a new supplier of files like so:
 
 >Assume the new user is named "newutil" and the User has been added via the Webfaction control panel.
 >
@@ -15,21 +13,17 @@ The "file-to-bmon" repo is cloned into the "filebmon" User directory on the AHFC
 >
 >Add a `file_sources` entry in the YAML configuration file for the data files provided by "newutil"
 
-The SQLite database that maps Sensor IDs to BMON servers is housed in the main account ("ahfc" User) directory at:
+Each sensor read by the file-to-bmon script needs to be sent to a particular BMON
+server.  To determine which BMON server should be the destination for a
+particular sensor, a Google Sheets spreadsheet
+is used to map Sensor IDs to
+BMON IDs. The BMON IDs are established in the YAML Configuration file for
+the script.  Also, a default BMON ID can be provided for a file source, and
+any sensors not in the mapping file will be sent to that server.
 
-    /home/ahfc/sensor_db/sensor_to_bmon.sqlite
-
-Having it there made it easily accessible to the [phpLiteAdmin tool](https://www.phpliteadmin.org/), 
-which allows for adding and editing 
-Sensor IDs that are being processed.  That AHFC phpliteadmin tool 
-is accessible at:  http://ahfc.webfactional.com/editdb/phpliteadmin.php .
-
-The Sensor-to-BMON SQLite file was made accessible to the "filebmon" user by using the Control Panel, 
-putting the "filebmon" User into the "ahfc" group and granting Read Only access permission to the 
-"/home/ahfc/sensor_db" directory by using the "Grant Permissions" button.  The image below
-shows the dialog that appears after using the Grant Permissions button:
-
-![Grant Permissions](images/file_permissions.png)
+This Google Sheets spreadsheet used for mapping Sensors to BMON sites is named 
+"sensor_to_bmon". This spreadsheet was created by Alan Mitchell but shared with Tyler Boyes 
+at AHFC.
 
 The YAML configuration file for the file-to-bmon script is located in the
 "filebmon" User directory at `/home/filebmon/f-to-b-config/config.yaml`.

@@ -55,8 +55,8 @@ that may be useful:
   can be processed by file-to-bmon. This script would typically be scheduled as a cron
   job.  Read [the code](tools/xlsx_to_csv.py) for more documentation.
 
-The following documents are specific to the Alaska Housing Finance Corporation installation of the
+The following document is specific to the Alaska Housing Finance Corporation installation of the
 file-to-bmon script.  However, some information in the documentation may be useful for other 
 installations.
-* [Adding and Editing Sensor ID to BMON Server relationships](docs/sensor_to_bmon.md)
+
 * [Sample Installation and Use of the Script on the AHFC Webfaction Server](docs/install_docs.md)
