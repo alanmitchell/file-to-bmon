@@ -1,5 +1,6 @@
 # See the Project README.md file for explanation of this Configuration file.
-sensor_to_bmon_file: /home/cea/meter_db/meters.sqlite
+sensor_to_bmon_file: sensor_to_bmon
+google_credentials_file:  /home/cea/meter_db/creds.json
 logging_level: INFO
 dry_run: False
 file_sources:

@@ -15,6 +15,8 @@ import sqlite3
 
 import yaml
 import pytz
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials 
 
 import logging_setup
 from poster.httpPoster import HttpPoster, BMSreadConverter
@@ -70,7 +72,8 @@ try:
 
     # Make a dictionary mapping sensor IDs to BMON server IDs.  The file name 
     # comes from the config file and is either a SQLite database (if the file
-    # extension is .sqlite) or a CSV file (if the file extension is .csv).
+    # extension is .sqlite), a CSV file (if the file extension is .csv), or
+    # the name of a Google Sheets spreadsheet (if there is no file extension).
     # If no file is specified, then presumably every file source will have a 
     # default bmon location.
     if 'sensor_to_bmon_file' in config:
@@ -91,6 +94,16 @@ try:
                     if len(row) != 2:
                         continue
                     id_to_bmon[row[0].strip()] = row[1].strip()
+
+        elif id_to_bmon_fn.suffix == '':
+            # no file extension so this must be a Google Sheets document.
+            scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+            creds = ServiceAccountCredentials.from_json_keyfile_name(config['google_credentials_file'], scope)
+            client = gspread.authorize(creds)
+            sheet = client.open(config['sensor_to_bmon_file']).sheet1
+            id_to_bmon = {}
+            for rec in sheet.get_all_records():
+                id_to_bmon[rec['sensor_id'].strip()] = rec['bmon_id'].strip()
 
         else:
             raise TypeError('Invalid extension for configuration file.')

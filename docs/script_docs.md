@@ -46,13 +46,15 @@ see where the reading should be posted.  BMON servers are identified by the IDs 
 create in the `bmon_servers` section of this Configuration file.  In the sample Configuration
 file, you will find two BMON server IDs: `ahfc` and `mssd`.
 
-There are two possible formats for this Sensor ID-to-BMON mapping file.  The file can either
+There are three possible formats for this Sensor ID-to-BMON mapping file.  The file can
 be a SQLite database, and if so, the file must end with the `.sqlite` extension.  If the file
 is a SQLite database, the database must have a table named `sensor_target` and that table
 must have two string columns: `sensor_id` and `bmon_id`.  Each row of the table maps a
-particular Sensor ID to a destination BMON server.
+particular Sensor ID to a destination BMON server. If a SQLite database file is used for this 
+mapping, a simple SQLite web-based editing application can be used to maintain the data.  Such 
+an application is [phpLiteAdmin](https://www.phpliteadmin.org/).
 
-The other possible format for the mapping file is a comma-separated-value (CSV) text file. If
+Another possible format for the mapping file is a comma-separated-value (CSV) text file. If
 this file format is used, each row of the file should have a Sensor ID and the target BMON ID,
 separated by a comma.  The file name must end in the extension `.csv`. Here is an example of
 the file contents:
@@ -62,10 +64,22 @@ AK9023432, ahfc
 AN448234223, mssd
 sensor_xyz, ahfc
 ```
-
-One advantage of using a SQLite database file for this mapping is that a simple SQLite
-web-based editing application can be used to maintain the data.  Such an application
-is [phpLiteAdmin](https://www.phpliteadmin.org/).
+Finally, the most convenient format for this mapping file from an editing standpoint is a
+Google Sheets spreadsheet.  If this format is used, the `sensor_to_bmon_file` entry in the
+configuration file should be the file name of the Sheets document, e.g. `sensor_to_bmon`.
+If `file-to-bmon` sees no extension on this file name, it assumes that it is the name of a
+Google Sheets document.  If this format is being used, and additional entry in the configuration
+files is required: the `google_credentials_file` entry.  This entry is the full path to a
+JSON Google API credentials file, and can be left blank if using the SQLite or CSV formats.
+More information about creation of this credentials file and steps
+to share a Google Sheets spreadsheet with the `file-to-bmon` application can be found
+[here](https://towardsdatascience.com/accessing-google-spreadsheet-data-using-python-90a5bc214fd2).
+Note that the [gspread](https://gspread.readthedocs.io/en/latest/) library is used by
+`file-to-bmon` to access the spreadsheet.  The Google Sheets spreadsheet must havin the Sensor
+ID to BMON mapping information on the first sheet of the spreadsheet.  Two columns must be present
+with the column titles of `sensor_id` and `bmon_id` in row 1 of the spreadsheet.
+Here is a sample showing the format of the spreadsheet:
+![Sensor to BMON Spreadsheeet](images/sensor_to_bmon_sheets.png)
 
 The `sensor_to_bmon_file` file is optional *if* instead you provide a `default_bmon` setting
 for each of the file sources defined in the `file_sources` section of this Configuration
