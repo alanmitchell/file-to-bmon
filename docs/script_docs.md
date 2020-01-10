@@ -65,17 +65,24 @@ AN448234223, mssd
 sensor_xyz, ahfc
 ```
 Finally, the most convenient format for this mapping file from an editing standpoint is a
-Google Sheets spreadsheet.  If this format is used, the `sensor_to_bmon_file` entry in the
-configuration file should be the file name of the Sheets document, e.g. `sensor_to_bmon`.
-If `file-to-bmon` sees no extension on this file name, it assumes that it is the name of a
-Google Sheets document.  If this format is being used, and additional entry in the configuration
-files is required: the `google_credentials_file` entry.  This entry is the full path to a
+Google Sheets spreadsheet.  If `file-to-bmon` sees no extension on the `sensor_to_bmon_file` entry, 
+it assumes that it is the name of a Google Sheets document. This is the name of the spreadsheet
+found in the upper left corner of the Sheets document, e.g. `sensor_to_bmon`.
+If a Google Sheets document is being used, an additional entry in the configuration
+file is required: 
+
+```yaml
+google_credentials_file: /home/cea/meter_db/creds.json
+```
+This entry is the full path to a
 JSON Google API credentials file, and can be left blank if using the SQLite or CSV formats.
 More information about creation of this credentials file and steps
 to share a Google Sheets spreadsheet with the `file-to-bmon` application can be found
 [here](https://towardsdatascience.com/accessing-google-spreadsheet-data-using-python-90a5bc214fd2).
 Note that the [gspread](https://gspread.readthedocs.io/en/latest/) library is used by
-`file-to-bmon` to access the spreadsheet.  The Google Sheets spreadsheet must havin the Sensor
+`file-to-bmon` to access the spreadsheet.  
+
+The Google Sheets spreadsheet must have the Sensor
 ID to BMON mapping information on the first sheet of the spreadsheet.  Two columns must be present
 with the column titles of `sensor_id` and `bmon_id` in row 1 of the spreadsheet.
 Here is a sample showing the format of the spreadsheet:
