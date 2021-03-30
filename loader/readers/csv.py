@@ -1,6 +1,7 @@
 """Reader file to parse CCHRC CSV files"""
 from .base_reader import BaseReader
 
+
 class Reader(BaseReader):
     
     def read_header(self, fobj, file_name):
