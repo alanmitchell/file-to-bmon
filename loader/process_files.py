@@ -43,7 +43,7 @@ logging_setup.configure_logging(log_file)
 try:
     # load configuration file describing general operation of this script
     # and the files to be loaded.
-    config = yaml.load(open(config_fn))
+    config = yaml.safe_load(open(config_fn))
 
 except:
     logging.exception('Error in Reading Configuration File.')
