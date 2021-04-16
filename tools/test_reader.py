@@ -28,8 +28,11 @@ print('Header Rows:')
 header_str = ''.join(reader_obj.read_header(fin, test_file_path))
 print(header_str)
 
-# Print first three rows of data, parsed into sensor readings
+# Print first hundred rows of data, parsed into sensor readings
 print('Parsed Data Rows:')
-for i in range(3):
-    print(reader_obj.parse_line(fin.readline()))
+for i in range(100):
+    lin = fin.readline()
+    if lin == '':
+        break
+    print(reader_obj.parse_line(lin))
 
