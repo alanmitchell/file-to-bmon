@@ -20,6 +20,7 @@ from datetime import datetime, timedelta, timezone
 import xml.etree.ElementTree as ET
 import logging
 import logging.handlers
+from collections import OrderedDict
 
 def parse_xml_file(fn):
     """Parses one XML file with the full path of 'fn' and returns a list of
@@ -33,8 +34,12 @@ def parse_xml_file(fn):
     # get root element
     root = tree.getroot()
 
-    # create empty list for readings
-    readings = []
+    # Create an ordered dictionary to hold readings.  The keys are 
+    # (meter serial #, UNIX timestamp), and the value is the average kW during 
+    # the interval.  This dictionary is used instead of a list because two-way
+    # meters may have two separate usage records (Delivered, and Received), which
+    # need to be combined.
+    readings = OrderedDict()
 
     for meter_readings in root.findall('./MeterReadings'):
         try:
@@ -42,21 +47,29 @@ def parse_xml_file(fn):
             meter_sn = meter.attrib['SerialNumber'].strip()
             tz_offset_mins = float(meter.attrib['TimeZoneOffset'])   # minutes
             for interval_data in meter_readings.findall('./IntervalData'):
+
                 interval_spec = interval_data.find('./IntervalSpec')
                 interval = float(interval_spec.attrib['Interval'])
+                
                 # determine the multiplier to convert kWh in the interval to average
                 # kW.
-                kw_mult = 60.0 / interval
-                direction = interval_spec.attrib['Direction']   # ** To be Addressed later
+                interval_mult = 60.0 / interval
+                
+                # Determine a multiplier to account for the direction flow
+                direction = interval_spec.attrib['Direction']
+                dir_mult = -1.0 if direction == 'Received' else 1.0 
                 for rdg in interval_data.findall('./Reading'):
                     try:
-                        kw = kw_mult * float(rdg.attrib['RawReading'])
                         ts_str = rdg.attrib['TimeStamp']
                         ts_dt = datetime.strptime(ts_str, '%Y-%m-%d %H:%M:%S')
                         ts_dt += timedelta(minutes=tz_offset_mins)  # convert to UTC
                         ts_dt = ts_dt.replace(tzinfo=timezone.utc)
                         ts = ts_dt.timestamp() + interval / 2.0 * 60.0   # make timestamp in middle of interval
-                        readings.append( (meter_sn, ts, kw) )
+
+                        # retrieve an existing record for this meter/timestamp
+                        kw = readings.get((meter_sn, ts), 0.0)
+                        kw += interval_mult * dir_mult * float(rdg.attrib['RawReading'])
+                        readings[(meter_sn, ts)] = kw
 
                     except:
                         logging.exception('Error processing a reading.')
@@ -64,7 +77,13 @@ def parse_xml_file(fn):
         except:
             logging.exception('Error processing a meter.')
     
-    return readings
+    # convert reading dictionary into a list
+    rdg_list = []
+    for ky, kw in readings.items():
+        meter_sn, ts = ky
+        rdg_list.append( (meter_sn, ts, kw))
+        
+    return rdg_list
 
 if __name__ == '__main__':
 
