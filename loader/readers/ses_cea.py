@@ -6,14 +6,14 @@ from .base_reader import BaseReader
 class Reader(BaseReader):
     
     def read_header(self, fobj, file_name):
-        # There are no header lines in the file
+        # There is one header line
         return [fobj.readline()]
 
     def parse_line(self, lin):
 
         # there is one reading per line, fields are separated by commas.
         fields = lin.split(',')
-        meter_num, dt, tm, _, _, kw = fields
+        meter_num, dt, tm, _, kw = fields
 
         meter_num = meter_num.strip().lower()
 
