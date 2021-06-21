@@ -13,7 +13,7 @@ class Reader(BaseReader):
 
         # there is one reading per line, fields are separated by commas.
         fields = lin.split(',')
-        meter_num, dt, tm, _, kw = fields
+        meter_num, dt, tm, _, kw, *rest = fields
 
         meter_num = meter_num.strip().lower()
 
