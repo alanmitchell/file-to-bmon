@@ -42,6 +42,6 @@ class Reader(BaseReader):
         # put the timestamp in the middle of the 15 minute interval
         ts -= 7.5 * 60
 
-        kw = float(kw)
+        kw = float(kw.replace('"', '').replace(',', ''))
 
         return [(ts, f'ses_{meter_num}', kw)]
