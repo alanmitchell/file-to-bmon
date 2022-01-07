@@ -1,6 +1,8 @@
 """Reader file to parse Seward Electric Association 15-minute
 meter data provided by Chugach Electric.
 """
+from io import StringIO
+import csv
 from .base_reader import BaseReader
 
 class Reader(BaseReader):
@@ -11,8 +13,11 @@ class Reader(BaseReader):
 
     def parse_line(self, lin):
 
-        # there is one reading per line, fields are separated by commas.
-        fields = lin.split(',')
+        # Use the csv module to properly split the line into fields, accounting
+        # for quoted strings.
+        f = StringIO(lin)
+        rdr = csv.reader(f)
+        fields = next(rdr)
         meter_num, dt, tm, _, kw, *rest = fields
 
         meter_num = meter_num.strip().lower()
